@@ -12,6 +12,7 @@ import morgan from 'morgan';
 import { env } from './config/env.js';
 import healthRouter from './routes/health.routes.js';
 import authRouter from './routes/auth.routes.js';
+import projectsRouter from './routes/project.routes.js';
 import { globalErrorHandler, notFoundHandler } from './middleware/error-handler.js';
 
 // ─── Create App ──────────────────────────────────────────────────────────────
@@ -47,6 +48,7 @@ app.use(morgan(env.nodeEnv === 'development' ? 'dev' : 'combined'));
 
 app.use('/api/health', healthRouter);
 app.use('/api/auth', authRouter);
+app.use('/api/projects', projectsRouter);
 
 // ─── Error Handling ───────────────────────────────────────────────────────────
 // Order matters: 404 handler must come after all routes,
