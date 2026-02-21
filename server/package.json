@@ -1,0 +1,49 @@
+{
+  "name": "cinevision-server",
+  "version": "1.0.0",
+  "description": "CineVision API — AI-Assisted Pre-Visualization Studio for Indie Filmmakers",
+  "type": "module",
+  "main": "dist/server.js",
+  "scripts": {
+    "dev": "node --watch --env-file=.env --import tsx/esm src/server.ts",
+    "build": "tsc --project tsconfig.json",
+    "start": "node --env-file=.env dist/server.js",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf dist"
+  },
+  "keywords": [
+    "filmmaking",
+    "pre-visualization",
+    "3d",
+    "ai",
+    "typescript"
+  ],
+  "author": "",
+  "license": "MIT",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "cloudinary": "^2.9.0",
+    "cors": "^2.8.6",
+    "express": "^5.2.1",
+    "express-validator": "^7.3.1",
+    "helmet": "^8.1.0",
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^9.2.1",
+    "morgan": "^1.10.1",
+    "multer": "^2.0.2"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6",
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.1",
+    "@types/jsonwebtoken": "^9.0.9",
+    "@types/morgan": "^1.9.9",
+    "@types/multer": "^1.4.13",
+    "@types/node": "^22.13.5",
+    "tsx": "^4.19.3",
+    "typescript": "^5.8.2"
+  }
+}
