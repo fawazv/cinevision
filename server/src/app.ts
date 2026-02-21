@@ -11,6 +11,7 @@ import cors from 'cors';
 import morgan from 'morgan';
 import { env } from './config/env.js';
 import healthRouter from './routes/health.routes.js';
+import authRouter from './routes/auth.routes.js';
 import { globalErrorHandler, notFoundHandler } from './middleware/error-handler.js';
 
 // ─── Create App ──────────────────────────────────────────────────────────────
@@ -45,10 +46,7 @@ app.use(morgan(env.nodeEnv === 'development' ? 'dev' : 'combined'));
 // ─── Routes ──────────────────────────────────────────────────────────────────
 
 app.use('/api/health', healthRouter);
-
-// Future routes will be mounted here, e.g.:
-// app.use('/api/auth', authRouter);
-// app.use('/api/projects', projectsRouter);
+app.use('/api/auth', authRouter);
 
 // ─── Error Handling ───────────────────────────────────────────────────────────
 // Order matters: 404 handler must come after all routes,
