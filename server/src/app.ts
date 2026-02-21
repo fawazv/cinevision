@@ -14,6 +14,7 @@ import healthRouter from './routes/health.routes.js';
 import authRouter from './routes/auth.routes.js';
 import projectsRouter from './routes/project.routes.js';
 import scriptsRouter from './routes/script.routes.js';
+import parseRouter from './routes/parse.routes.js';
 import { globalErrorHandler, notFoundHandler } from './middleware/error-handler.js';
 
 // ─── Create App ──────────────────────────────────────────────────────────────
@@ -51,6 +52,7 @@ app.use('/api/health', healthRouter);
 app.use('/api/auth', authRouter);
 app.use('/api/projects', projectsRouter);
 app.use('/api/scripts', scriptsRouter);
+app.use('/api/parse', parseRouter);
 
 // ─── Error Handling ───────────────────────────────────────────────────────────
 // Order matters: 404 handler must come after all routes,

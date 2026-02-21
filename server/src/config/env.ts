@@ -15,7 +15,7 @@ interface EnvConfig {
     readonly cloudinaryCloudName: string;
     readonly cloudinaryApiKey: string;
     readonly cloudinaryApiSecret: string;
-    readonly openaiApiKey: string;
+    readonly geminiApiKey: string;
     readonly aiModel: string;
     readonly clientUrl: string;
 }
@@ -52,8 +52,8 @@ function loadEnvConfig(): EnvConfig {
         cloudinaryCloudName: getRequiredEnv('CLOUDINARY_CLOUD_NAME'),
         cloudinaryApiKey: getRequiredEnv('CLOUDINARY_API_KEY'),
         cloudinaryApiSecret: getRequiredEnv('CLOUDINARY_API_SECRET'),
-        openaiApiKey: getRequiredEnv('OPENAI_API_KEY'),
-        aiModel: getOptionalEnv('AI_MODEL', 'gpt-4o'),
+        geminiApiKey: getRequiredEnv('GEMINI_API_KEY'),
+        aiModel: getOptionalEnv('AI_MODEL', 'gemini-2.0-flash'),
         clientUrl: getOptionalEnv('CLIENT_URL', 'http://localhost:5173'),
     });
 }
