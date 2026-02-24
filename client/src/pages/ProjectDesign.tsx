@@ -2,6 +2,7 @@ import { SceneViewer } from '../components/3d/SceneViewer';
 import { WebcamTracker } from '../components/gesture/WebcamTracker';
 import type { ParsedSceneData } from '../types/scene.types';
 import type { GestureState } from '../types/gesture.types';
+import { useGestureStore } from '../store/gesture.store';
 
 const DUMMY_SCENE: ParsedSceneData = {
     id: '123',
@@ -51,10 +52,9 @@ const DUMMY_SCENE: ParsedSceneData = {
 
 export function ProjectDesign() {
     const handleGesture = (state: GestureState) => {
-        // For now, just log the gesture to prove the pipeline works
-        if (state.isTracking && state.gesture !== 'NONE') {
-            console.log('Gesture detected:', state.gesture, state.position);
-        }
+        // Pipe the 60fps tracking object into the Zustand store 
+        // This allows the 3D Canvas to read it directly without triggering React DOM re-renders.
+        useGestureStore.getState().setGesture(state);
     };
 
     return (
