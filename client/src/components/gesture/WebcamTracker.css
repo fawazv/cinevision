@@ -1,0 +1,153 @@
+.tracker-panel {
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+    width: 320px;
+    border-radius: 12px;
+    background: hsla(var(--bg-elevated), 0.6);
+    transition: all var(--transition-normal);
+}
+
+.tracker-panel.error {
+    border-color: hsl(var(--danger-base));
+    flex-direction: row;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.5rem;
+}
+
+.error-icon {
+    color: hsl(var(--danger-base));
+}
+
+.error-text {
+    margin: 0;
+    font-size: 0.9rem;
+    color: hsl(0, 84%, 80%);
+}
+
+.tracker-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.tracker-title {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.tracker-title h4 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    color: hsl(var(--text-main));
+}
+
+.text-accent {
+    color: hsl(var(--accent-primary));
+}
+
+.toggle-btn {
+    font-size: 0.8rem;
+    padding: 0.5rem 1rem;
+    display: inline-flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.btn-danger {
+    background: hsl(var(--danger-base));
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    font-family: var(--font-sans);
+    font-weight: 500;
+}
+
+.btn-danger:hover {
+    filter: brightness(1.1);
+}
+
+.spin {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.tracker-body {
+    margin-top: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.video-container {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 4/3;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #000;
+    border: 1px solid hsl(var(--border-light));
+}
+
+.webcam-feed {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transform: scaleX(-1);
+    /* Mirror display */
+}
+
+.gesture-status {
+    position: absolute;
+    bottom: 0.5rem;
+    left: 0.5rem;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(4px);
+    padding: 0.25rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: hsl(var(--danger-base));
+}
+
+.status-dot.tracking {
+    background: hsl(120, 80%, 40%);
+    /* Green */
+    box-shadow: 0 0 8px hsl(120, 80%, 40%);
+}
+
+.gesture-legend {
+    font-size: 0.8rem;
+    color: hsl(var(--text-muted));
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.gesture-legend p {
+    margin: 0;
+}
+
+.gesture-legend b {
+    color: hsl(var(--text-main));
+}
