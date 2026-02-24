@@ -1,5 +1,6 @@
 import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 import { MainLayout } from './components/layout/MainLayout';
+import { ProjectDesign } from './pages/ProjectDesign';
 
 function DashboardPlaceholder() {
   return (
@@ -33,7 +34,7 @@ const router = createBrowserRouter([
     element: <MainLayout />,
     children: [
       { index: true, element: <DashboardPlaceholder /> },
-      { path: 'projects', element: <div className="fade-in"><h2>Projects</h2><p className="text-muted">UI Pending...</p></div> },
+      { path: 'projects', element: <ProjectDesign /> },
       { path: 'settings', element: <div className="fade-in"><h2>Settings</h2><p className="text-muted">UI Pending...</p></div> },
     ],
   },
@@ -42,3 +43,4 @@ const router = createBrowserRouter([
 export function App() {
   return <RouterProvider router={router} />;
 }
+
