@@ -1,5 +1,6 @@
+import { useState } from 'react';
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
-import { LayoutDashboard, Film, Settings, LogOut } from 'lucide-react';
+import { LayoutDashboard, Film, Settings, LogOut, Menu, X } from 'lucide-react';
 import { clsx } from 'clsx';
 import { Toaster } from 'react-hot-toast';
 import { useAuthStore } from '../../store/auth.store';
@@ -8,6 +9,7 @@ import './MainLayout.css';
 export function MainLayout() {
     const { user, logout } = useAuthStore();
     const navigate = useNavigate();
+    const [sidebarOpen, setSidebarOpen] = useState(false);
 
     const navItems = [
         { to: '/', icon: LayoutDashboard, label: 'Dashboard', end: true },
@@ -27,10 +29,35 @@ export function MainLayout() {
 
     return (
         <div className="layout-root fade-in">
-            <aside className="layout-sidebar glass-panel">
+            {/* Mobile hamburger */}
+            <button
+                className="mobile-menu-btn"
+                onClick={() => setSidebarOpen(true)}
+                aria-label="Open navigation"
+            >
+                <Menu size={22} />
+            </button>
+
+            {/* Click-away backdrop (mobile only) */}
+            {sidebarOpen && (
+                <div
+                    className="sidebar-backdrop"
+                    onClick={() => setSidebarOpen(false)}
+                />
+            )}
+
+            <aside className={clsx('layout-sidebar glass-panel', sidebarOpen && 'is-open')}>
                 <div className="sidebar-brand">
                     <span className="brand-icon">🎬</span>
                     <h1 className="brand-title text-gradient-accent">CineVision</h1>
+                    {/* Close button on mobile */}
+                    <button
+                        className="sidebar-close-btn"
+                        onClick={() => setSidebarOpen(false)}
+                        aria-label="Close navigation"
+                    >
+                        <X size={18} />
+                    </button>
                 </div>
 
                 <nav className="sidebar-nav">
@@ -42,6 +69,7 @@ export function MainLayout() {
                             className={({ isActive }) =>
                                 clsx('nav-link', isActive && 'nav-link-active')
                             }
+                            onClick={() => setSidebarOpen(false)}
                         >
                             <Icon size={20} />
                             <span>{label}</span>

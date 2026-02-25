@@ -2,6 +2,8 @@ import { lazy, Suspense } from 'react';
 import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 import { MainLayout } from './components/layout/MainLayout';
 import { AuthGuard } from './components/auth/AuthGuard';
+import { ErrorBoundary } from './components/error/ErrorBoundary';
+import './components/error/ErrorBoundary.css';
 
 // ─── Eagerly loaded (small, always needed on first render) ────────────────────
 import { Login } from './pages/Login';
@@ -59,34 +61,42 @@ const router = createBrowserRouter([
           {
             path: 'projects',
             element: (
-              <Suspense fallback={<PageSpinner />}>
-                <Projects />
-              </Suspense>
+              <ErrorBoundary>
+                <Suspense fallback={<PageSpinner />}>
+                  <Projects />
+                </Suspense>
+              </ErrorBoundary>
             ),
           },
           {
             path: 'projects/:id',
             element: (
-              <Suspense fallback={<PageSpinner />}>
-                <ProjectDetail />
-              </Suspense>
+              <ErrorBoundary>
+                <Suspense fallback={<PageSpinner />}>
+                  <ProjectDetail />
+                </Suspense>
+              </ErrorBoundary>
             ),
           },
           {
             // 3D designer — laziest route; defers Three.js + MediaPipe until user enters
             path: 'projects/:id/scene/:sceneId',
             element: (
-              <Suspense fallback={<PageSpinner />}>
-                <ProjectDesign />
-              </Suspense>
+              <ErrorBoundary>
+                <Suspense fallback={<PageSpinner />}>
+                  <ProjectDesign />
+                </Suspense>
+              </ErrorBoundary>
             ),
           },
           {
             path: 'settings',
             element: (
-              <Suspense fallback={<PageSpinner />}>
-                <Settings />
-              </Suspense>
+              <ErrorBoundary>
+                <Suspense fallback={<PageSpinner />}>
+                  <Settings />
+                </Suspense>
+              </ErrorBoundary>
             ),
           },
         ],
