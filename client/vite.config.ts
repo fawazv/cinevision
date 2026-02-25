@@ -22,53 +22,15 @@ export default defineConfig({
     rollupOptions: {
       output: {
         /**
-         * Manual chunk strategy — splits the bundle into logical groups.
-         * This enables parallel download and long-term caching of stable deps.
-         *
-         * Groups:
-         *  - react-vendor     — React + Router (tiny, fast-changing entry)
-         *  - three-vendor     — Three.js + R3F ecosystem (heaviest, cache aggressively)
-         *  - mediapipe-vendor — MediaPipe WASM loader (large, rarely changes)
-         *  - ui-vendor        — Lucide icons, clsx, Zustand (light utilities)
+         * Object-based manual chunks.
+         * This is much safer than function-based chunking as it prevents
+         * Rollup initialization order bugs (e.g., React being undefined).
          */
-        manualChunks(id: string) {
-          // Three.js + React Three Fiber ecosystem
-          if (
-            id.includes('node_modules/three/') ||
-            id.includes('node_modules/@react-three/') ||
-            id.includes('node_modules/troika-') ||
-            id.includes('node_modules/meshline')
-          ) {
-            return 'three-vendor';
-          }
-
-          // MediaPipe (WASM + JS bridge)
-          if (id.includes('node_modules/@mediapipe/')) {
-            return 'mediapipe-vendor';
-          }
-
-          // jsPDF + html2canvas (export feature)
-          if (
-            id.includes('node_modules/jspdf') ||
-            id.includes('node_modules/html2canvas') ||
-            id.includes('node_modules/dompurify')
-          ) {
-            return 'export-vendor';
-          }
-
-          // React core + router
-          if (
-            id.includes('node_modules/react/') ||
-            id.includes('node_modules/react-dom/') ||
-            id.includes('node_modules/react-router')
-          ) {
-            return 'react-vendor';
-          }
-
-          // Remaining node_modules → one shared vendor chunk
-          if (id.includes('node_modules/')) {
-            return 'ui-vendor';
-          }
+        manualChunks: {
+          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+          'three-vendor': ['three', '@react-three/fiber', '@react-three/drei'],
+          'mediapipe-vendor': ['@mediapipe/tasks-vision'],
+          'ui-vendor': ['lucide-react', 'clsx', 'zustand', 'react-hook-form', 'zod', 'react-hot-toast']
         },
       },
     },

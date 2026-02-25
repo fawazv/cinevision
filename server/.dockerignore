@@ -1,0 +1,38 @@
+# Files/folders to exclude when Docker builds the server image.
+# This keeps the image small and prevents secrets from leaking in.
+
+# Development artifacts
+node_modules
+dist
+
+# TypeScript source (not needed at runtime — compiled to dist/)
+# Note: we DO copy them during the build stage, but the builder
+# image is discarded. The final image only gets dist/ and node_modules.
+
+# Secrets — NEVER include these in an image
+.env
+.env.*
+
+# Version control
+.git
+.gitignore
+
+# IDE / OS
+.vscode
+.idea
+*.DS_Store
+Thumbs.db
+
+# Docker files themselves (no need to copy into the image)
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Logs
+*.log
+npm-debug.log*
+
+# Test files
+coverage
+*.test.ts
+*.spec.ts
