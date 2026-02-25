@@ -1,14 +1,28 @@
-import { Outlet, NavLink } from 'react-router-dom';
-import { Film, LayoutDashboard, Settings, User } from 'lucide-react';
+import { Outlet, NavLink, useNavigate } from 'react-router-dom';
+import { LayoutDashboard, Film, Settings, LogOut } from 'lucide-react';
 import { clsx } from 'clsx';
-import './MainLayout.css'; // We'll create this next
+import { useAuthStore } from '../../store/auth.store';
+import './MainLayout.css';
 
 export function MainLayout() {
+    const { user, logout } = useAuthStore();
+    const navigate = useNavigate();
+
     const navItems = [
-        { to: '/', icon: LayoutDashboard, label: 'Dashboard' },
-        { to: '/projects', icon: Film, label: 'Projects' },
-        { to: '/settings', icon: Settings, label: 'Settings' },
+        { to: '/', icon: LayoutDashboard, label: 'Dashboard', end: true },
+        { to: '/projects', icon: Film, label: 'Projects', end: false },
+        { to: '/settings', icon: Settings, label: 'Settings', end: false },
     ];
+
+    const handleLogout = () => {
+        logout();
+        navigate('/login');
+    };
+
+    // Avatar initials from user's name
+    const initials = user?.name
+        ? user.name.split(' ').map((n) => n[0]).join('').slice(0, 2).toUpperCase()
+        : '??';
 
     return (
         <div className="layout-root fade-in">
@@ -19,10 +33,11 @@ export function MainLayout() {
                 </div>
 
                 <nav className="sidebar-nav">
-                    {navItems.map(({ to, icon: Icon, label }) => (
+                    {navItems.map(({ to, icon: Icon, label, end }) => (
                         <NavLink
                             key={to}
                             to={to}
+                            end={end}
                             className={({ isActive }) =>
                                 clsx('nav-link', isActive && 'nav-link-active')
                             }
@@ -34,15 +49,24 @@ export function MainLayout() {
                 </nav>
 
                 <div className="sidebar-footer">
-                    <button className="user-profile-btn glass-panel">
-                        <User size={18} />
-                        <span>Developer</span>
-                    </button>
+                    <div className="user-profile glass-panel">
+                        <div className="user-avatar">{initials}</div>
+                        <div className="user-info">
+                            <span className="user-name">{user?.name ?? 'User'}</span>
+                            <span className="user-email">{user?.email ?? ''}</span>
+                        </div>
+                        <button
+                            className="logout-btn"
+                            onClick={handleLogout}
+                            title="Sign out"
+                        >
+                            <LogOut size={16} />
+                        </button>
+                    </div>
                 </div>
             </aside>
 
             <main className="layout-content">
-                {/* Child routes render here */}
                 <Outlet />
             </main>
         </div>

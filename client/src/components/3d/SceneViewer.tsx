@@ -16,7 +16,7 @@ export function SceneViewer({ sceneData }: SceneViewerProps) {
 
     return (
         <div style={{ width: '100%', height: '100%', position: 'relative', background: '#000' }}>
-            <Canvas shadows dpr={[1, 2]}>
+            <Canvas id="cinevision-canvas" shadows dpr={[1, 2]} gl={{ preserveDrawingBuffer: true }}>
                 <Suspense fallback={null}>
                     <EnvironmentBuilder
                         environment={sceneData.environment}

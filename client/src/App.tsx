@@ -1,5 +1,8 @@
 import { RouterProvider, createBrowserRouter } from 'react-router-dom';
 import { MainLayout } from './components/layout/MainLayout';
+import { AuthGuard } from './components/auth/AuthGuard';
+import { Login } from './pages/Login';
+import { Register } from './pages/Register';
 import { ProjectDesign } from './pages/ProjectDesign';
 
 function DashboardPlaceholder() {
@@ -13,7 +16,6 @@ function DashboardPlaceholder() {
           Your AI-powered 3D pre-visualization studio awaits.
         </p>
       </header>
-
       <div className="glass-panel" style={{ padding: '2rem', marginBottom: '2rem' }}>
         <h3 style={{ marginBottom: '1rem' }}>Get Started</h3>
         <p style={{ color: 'hsl(var(--text-muted))', marginBottom: '1.5rem' }}>
@@ -29,13 +31,23 @@ function DashboardPlaceholder() {
 }
 
 const router = createBrowserRouter([
+  // Public routes — no auth required
+  { path: '/login', element: <Login /> },
+  { path: '/register', element: <Register /> },
+
+  // Protected routes — wrapped by AuthGuard
   {
-    path: '/',
-    element: <MainLayout />,
+    element: <AuthGuard />,
     children: [
-      { index: true, element: <DashboardPlaceholder /> },
-      { path: 'projects', element: <ProjectDesign /> },
-      { path: 'settings', element: <div className="fade-in"><h2>Settings</h2><p className="text-muted">UI Pending...</p></div> },
+      {
+        path: '/',
+        element: <MainLayout />,
+        children: [
+          { index: true, element: <DashboardPlaceholder /> },
+          { path: 'projects', element: <ProjectDesign /> },
+          { path: 'settings', element: <div className="fade-in"><h2>Settings</h2><p className="text-muted">UI Pending...</p></div> },
+        ],
+      },
     ],
   },
 ]);
@@ -43,4 +55,3 @@ const router = createBrowserRouter([
 export function App() {
   return <RouterProvider router={router} />;
 }
-

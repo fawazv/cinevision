@@ -17,7 +17,7 @@ export const apiClient = axios.create({
 apiClient.interceptors.request.use(
     (config) => {
         // We'll store the token in localStorage for simplicity on the client side
-        const token = localStorage.getItem('token');
+        const token = localStorage.getItem('cinevision_token');
         if (token && config.headers) {
             config.headers.Authorization = `Bearer ${token}`;
         }

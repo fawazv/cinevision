@@ -3,6 +3,7 @@ import { WebcamTracker } from '../components/gesture/WebcamTracker';
 import type { ParsedSceneData } from '../types/scene.types';
 import type { GestureState } from '../types/gesture.types';
 import { useGestureStore } from '../store/gesture.store';
+import { exportStoryboardPDF, exportShotListCSV } from '../services/export.service';
 
 const DUMMY_SCENE: ParsedSceneData = {
     id: '123',
@@ -59,9 +60,25 @@ export function ProjectDesign() {
 
     return (
         <div className="fade-in" style={{ width: '100%', height: 'calc(100vh - 4rem)', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            <header>
-                <h2>Project Design</h2>
-                <p className="text-muted">3D Scene Viewer & MediaPipe Demonstration</p>
+            <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                <div>
+                    <h2>Project Design</h2>
+                    <p className="text-muted">3D Scene Viewer & MediaPipe Demonstration</p>
+                </div>
+                <div style={{ display: 'flex', gap: '1rem' }}>
+                    <button
+                        className="btn-secondary"
+                        onClick={() => exportShotListCSV([DUMMY_SCENE])}
+                    >
+                        Export Shot List CSV
+                    </button>
+                    <button
+                        className="btn-primary"
+                        onClick={() => exportStoryboardPDF('cinevision-canvas', [DUMMY_SCENE])}
+                    >
+                        Export Storyboard PDF
+                    </button>
+                </div>
             </header>
 
             <div className="glass-panel" style={{ flex: 1, overflow: 'hidden', padding: 0, position: 'relative' }}>

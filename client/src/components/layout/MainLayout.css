@@ -70,26 +70,75 @@
     padding: 1.5rem 1rem;
 }
 
-.user-profile-btn {
+.user-profile {
     width: 100%;
     display: flex;
     align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
+    gap: 0.75rem;
     padding: 0.75rem;
-    background: transparent;
+    border-radius: 10px;
     border: 1px solid hsl(var(--border-light));
-    color: hsl(var(--text-muted));
+    background: transparent;
+}
+
+.user-avatar {
+    flex-shrink: 0;
+    width: 36px;
+    height: 36px;
     border-radius: 8px;
-    cursor: pointer;
-    font-family: var(--font-sans);
+    background: hsl(var(--accent-primary) / 0.2);
+    border: 1px solid hsl(var(--accent-primary) / 0.4);
+    color: hsl(var(--accent-primary));
+    font-size: 0.8rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    letter-spacing: 0.05em;
+}
+
+.user-info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+}
+
+.user-name {
     font-size: 0.875rem;
+    font-weight: 600;
+    color: hsl(var(--text-main));
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.user-email {
+    font-size: 0.73rem;
+    color: hsl(var(--text-muted));
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.logout-btn {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.4rem;
+    background: transparent;
+    border: none;
+    color: hsl(var(--text-muted));
+    border-radius: 6px;
+    cursor: pointer;
     transition: all var(--transition-fast);
 }
 
-.user-profile-btn:hover {
-    background: hsla(var(--bg-elevated), 0.5);
-    color: hsl(var(--text-main));
+.logout-btn:hover {
+    background: hsl(0 80% 18%);
+    color: hsl(0 80% 70%);
 }
 
 .layout-content {
