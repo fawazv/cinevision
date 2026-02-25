@@ -31,10 +31,10 @@ export interface PublicScript {
     filename: string;
     originalName: string;
     format: ScriptFormat;
-    /** Cloudinary secure URL */
+    /** S3 presigned URL to download the script */
     url: string;
-    /** Cloudinary public_id — needed to delete the asset */
-    cloudinaryPublicId: string;
+    /** S3 object key — needed to delete or re-sign the asset */
+    s3ObjectKey: string;
     sizeBytes: number;
     project: string | Types.ObjectId;
     owner: string | Types.ObjectId;

@@ -8,7 +8,7 @@ import mongoose from 'mongoose';
 import { Script } from '../models/script.model.js';
 import { Project } from '../models/project.model.js';
 import { AppError } from '../middleware/error-handler.js';
-import { uploadBuffer, deleteAsset, getSignedUrl } from './cloudinary.service.js';
+import { uploadBuffer, deleteAsset, getSignedUrl } from './s3.service.js';
 import {
     MIME_TO_FORMAT,
     ALLOWED_EXTENSIONS,
@@ -68,7 +68,7 @@ function toPublicScript(doc: ScriptDocument): PublicScript {
         originalName: doc.originalName,
         format: doc.format,
         url: doc.url,
-        cloudinaryPublicId: doc.cloudinaryPublicId,
+        s3ObjectKey: doc.s3ObjectKey,
         sizeBytes: doc.sizeBytes,
         project: doc.project,
         owner: doc.owner,
@@ -110,11 +110,12 @@ export async function uploadScript(
     // 2. Detect format
     const format = detectFormat(file.originalname, file.mimetype);
 
-    // 3. Upload to Cloudinary
+    // 3. Upload to S3
     const filename = generateFilename(file.originalname);
+    const ext = path.extname(file.originalname).toLowerCase();
     const folder = `cinevision/scripts/${ownerId}`;
 
-    const uploaded = await uploadBuffer(file.buffer, folder, filename);
+    const uploaded = await uploadBuffer(file.buffer, folder, filename, ext, file.mimetype);
 
     // 4. Save metadata to MongoDB
     const script = await Script.create({
@@ -122,7 +123,7 @@ export async function uploadScript(
         filename,
         format,
         url: uploaded.secureUrl,
-        cloudinaryPublicId: uploaded.publicId,
+        s3ObjectKey: uploaded.objectKey,
         sizeBytes: file.size,
         project: projectId,
         owner: ownerId,
@@ -189,7 +190,7 @@ export async function getScriptDownloadUrl(
 
     const EXPIRES = 900; // 15 minutes
     return {
-        url: getSignedUrl(script.cloudinaryPublicId, EXPIRES),
+        url: await getSignedUrl(script.s3ObjectKey, EXPIRES),
         expiresInSeconds: EXPIRES,
     };
 }
@@ -210,8 +211,8 @@ export async function deleteScript(
         throw new AppError('Script not found', 404, 'NOT_FOUND');
     }
 
-    // Delete from cloud first — if this fails, we keep the DB record intact
-    await deleteAsset(script.cloudinaryPublicId);
+    // Delete from S3 first — if this fails, we keep the DB record intact
+    await deleteAsset(script.s3ObjectKey);
 
     // Remove DB record
     await Script.findByIdAndDelete(scriptId).exec();

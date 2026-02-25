@@ -12,9 +12,10 @@ interface EnvConfig {
     readonly mongodbUri: string;
     readonly jwtSecret: string;
     readonly jwtExpiresIn: string;
-    readonly cloudinaryCloudName: string;
-    readonly cloudinaryApiKey: string;
-    readonly cloudinaryApiSecret: string;
+    readonly awsRegion: string;
+    readonly awsAccessKeyId: string;
+    readonly awsSecretAccessKey: string;
+    readonly awsS3BucketName: string;
     readonly geminiApiKey: string;
     readonly aiModel: string;
     readonly clientUrl: string;
@@ -49,9 +50,10 @@ function loadEnvConfig(): EnvConfig {
         mongodbUri: getRequiredEnv('MONGODB_URI'),
         jwtSecret: getRequiredEnv('JWT_SECRET'),
         jwtExpiresIn: getOptionalEnv('JWT_EXPIRES_IN', '7d'),
-        cloudinaryCloudName: getRequiredEnv('CLOUDINARY_CLOUD_NAME'),
-        cloudinaryApiKey: getRequiredEnv('CLOUDINARY_API_KEY'),
-        cloudinaryApiSecret: getRequiredEnv('CLOUDINARY_API_SECRET'),
+        awsRegion: getRequiredEnv('AWS_REGION'),
+        awsAccessKeyId: getRequiredEnv('AWS_ACCESS_KEY_ID'),
+        awsSecretAccessKey: getRequiredEnv('AWS_SECRET_ACCESS_KEY'),
+        awsS3BucketName: getRequiredEnv('AWS_S3_BUCKET_NAME'),
         geminiApiKey: getRequiredEnv('GEMINI_API_KEY'),
         aiModel: getOptionalEnv('AI_MODEL', 'gemini-2.0-flash'),
         clientUrl: getOptionalEnv('CLIENT_URL', 'http://localhost:5173'),

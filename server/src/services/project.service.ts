@@ -7,6 +7,9 @@
 
 import mongoose from 'mongoose';
 import { Project } from '../models/project.model.js';
+import { Script } from '../models/script.model.js';
+import { Scene } from '../models/scene.model.js';
+import { deleteAssets } from './s3.service.js';
 import { AppError } from '../middleware/error-handler.js';
 import { parsePagination, buildPaginationMeta, parseSortString } from '../utils/pagination.utils.js';
 import type {
@@ -153,12 +156,28 @@ export async function deleteProject(
 ): Promise<void> {
     assertValidObjectId(projectId, 'project');
 
-    const result = await Project.findOneAndDelete({
-        _id: projectId,
-        owner: ownerId,
-    }).exec();
-
-    if (result === null) {
+    // 1. Verify project exists and is owned by the user
+    const project = await Project.findOne({ _id: projectId, owner: ownerId }).exec();
+    if (project === null) {
         throw new AppError('Project not found', 404, 'NOT_FOUND');
     }
+
+    // 2. Fetch all scripts for this project to get their S3 keys
+    const scripts = await Script.find({ project: projectId }).select('s3ObjectKey').lean().exec();
+
+    // 3. Delete files from S3 in bulk
+    const objectKeys = scripts.map((s) => s.s3ObjectKey);
+    if (objectKeys.length > 0) {
+        await deleteAssets(objectKeys);
+    }
+
+    // 4. Cascade delete MongoDB documents
+    // Order matters here to prevent orphans if MongoDB throws an error mid-way
+    await Promise.all([
+        Scene.deleteMany({ project: projectId }).exec(),
+        Script.deleteMany({ project: projectId }).exec(),
+    ]);
+
+    // 5. Delete the actual project
+    await Project.deleteOne({ _id: projectId }).exec();
 }

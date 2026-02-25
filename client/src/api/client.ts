@@ -1,4 +1,5 @@
 import axios from 'axios';
+import toast from 'react-hot-toast';
 
 // The Vite proxy (configured in vite.config.ts) will route /api requests to the backend server.
 const API_BASE_URL = '/api';
@@ -39,17 +40,23 @@ apiClient.interceptors.response.use(
         if (error.response?.data?.error) {
             const apiError = error.response.data.error;
 
-            // Auto-logout on invalid or expired token
+            // Auto-logout on invalid or expired token — don't toast, just redirect
             if (error.response.status === 401) {
-                // Must dynamically import to avoid circular dependency
                 import('../store/auth.store').then(({ useAuthStore }) => {
                     useAuthStore.getState().logout();
                 });
+                return Promise.reject({
+                    message: apiError.message,
+                    code: apiError.code,
+                    status: 401,
+                });
             }
 
-            // Throw a clean error object matching the backend's AppError shape
+            const errorMessage = apiError.message || 'Something went wrong';
+            toast.error(errorMessage);
+
             return Promise.reject({
-                message: apiError.message,
+                message: errorMessage,
                 code: apiError.code,
                 status: error.response.status,
                 details: apiError.details,
@@ -57,8 +64,10 @@ apiClient.interceptors.response.use(
         }
 
         // Network errors or generic 500s where JSON payload is missing
+        const networkMsg = error.message || 'An unexpected network error occurred';
+        toast.error(networkMsg);
         return Promise.reject({
-            message: error.message || 'An unexpected network error occurred',
+            message: networkMsg,
             code: 'NETWORK_ERROR',
             status: error.response?.status || 500,
         });

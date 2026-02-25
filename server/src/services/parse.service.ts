@@ -13,7 +13,7 @@ import { Scene } from '../models/scene.model.js';
 import { AppError } from '../middleware/error-handler.js';
 import { parseFountain, parseTxt, extractFdxText } from '../utils/fountain.parser.js';
 import { extractAllScenes } from './gemini.service.js';
-import { getSignedUrl } from './cloudinary.service.js';
+import { getSignedUrl } from './s3.service.js';
 import type { PublicScene } from '../types/scene.types.js';
 import type { SceneDocument } from '../models/scene.model.js';
 
@@ -40,8 +40,8 @@ function toPublicScene(doc: SceneDocument): PublicScene {
 /**
  * Fetch script text from Cloudinary using a signed URL.
  */
-async function fetchScriptText(cloudinaryPublicId: string): Promise<string> {
-    const signedUrl = getSignedUrl(cloudinaryPublicId, 300); // 5-min window
+async function fetchScriptText(s3ObjectKey: string): Promise<string> {
+    const signedUrl = await getSignedUrl(s3ObjectKey, 300); // 5-min window
 
     const response = await axios.get<string>(signedUrl, {
         responseType: 'text',
@@ -87,8 +87,8 @@ export async function parseScript(
     await script.save();
 
     try {
-        // 2. Fetch raw script text from Cloudinary
-        const rawText = await fetchScriptText(script.cloudinaryPublicId);
+        // 2. Fetch raw script text from S3
+        const rawText = await fetchScriptText(script.s3ObjectKey);
 
         // 3. Parse structure based on format
         let parsed;

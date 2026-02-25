@@ -2,7 +2,7 @@
  * Script Mongoose model.
  *
  * Stores metadata about an uploaded screenplay file.
- * The actual file content lives on Cloudinary (cloudinaryPublicId + url).
+ * The actual file content lives on AWS S3 (s3ObjectKey + url).
  * Parsed scene data will be stored in the Scene model (Component 5).
  */
 
@@ -15,13 +15,13 @@ export interface ScriptDocument extends Document {
     id: string;
     /** Original file name from the upload. */
     originalName: string;
-    /** Sanitised, unique file name stored on Cloudinary. */
+    /** Sanitised, unique file name stored in S3. */
     filename: string;
     format: ScriptFormat;
-    /** Cloudinary secure URL — populated after upload. */
+    /** S3 presigned URL — populated after upload. */
     url: string;
-    /** Cloudinary public_id — required to delete the asset. */
-    cloudinaryPublicId: string;
+    /** S3 object key — required to delete or presign the asset. */
+    s3ObjectKey: string;
     sizeBytes: number;
     /** The Project this script belongs to. */
     project: Types.ObjectId;
@@ -57,7 +57,7 @@ const scriptSchema = new Schema<ScriptDocument, ScriptModel>(
             type: String,
             required: true,
         },
-        cloudinaryPublicId: {
+        s3ObjectKey: {
             type: String,
             required: true,
         },

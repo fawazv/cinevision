@@ -24,9 +24,10 @@
     "node": ">=20.0.0"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.997.0",
+    "@aws-sdk/s3-request-presigner": "^3.997.0",
     "axios": "^1.13.5",
     "bcryptjs": "^3.0.3",
-    "cloudinary": "^2.9.0",
     "cors": "^2.8.6",
     "express": "^5.2.1",
     "express-validator": "^7.3.1",

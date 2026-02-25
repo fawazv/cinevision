@@ -1,6 +1,7 @@
 import { Outlet, NavLink, useNavigate } from 'react-router-dom';
 import { LayoutDashboard, Film, Settings, LogOut } from 'lucide-react';
 import { clsx } from 'clsx';
+import { Toaster } from 'react-hot-toast';
 import { useAuthStore } from '../../store/auth.store';
 import './MainLayout.css';
 
@@ -69,6 +70,27 @@ export function MainLayout() {
             <main className="layout-content">
                 <Outlet />
             </main>
+
+            <Toaster
+                position="bottom-right"
+                toastOptions={{
+                    duration: 4000,
+                    style: {
+                        background: 'hsl(222deg 20% 13%)',
+                        color: 'hsl(220deg 15% 88%)',
+                        border: '1px solid hsl(222deg 20% 22%)',
+                        borderRadius: '10px',
+                        fontSize: '0.9rem',
+                        boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
+                    },
+                    success: {
+                        iconTheme: { primary: 'hsl(158 64% 52%)', secondary: 'transparent' },
+                    },
+                    error: {
+                        iconTheme: { primary: 'hsl(0 72% 65%)', secondary: 'transparent' },
+                    },
+                }}
+            />
         </div>
     );
 }
