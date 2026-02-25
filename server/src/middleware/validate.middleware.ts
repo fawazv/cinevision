@@ -19,8 +19,16 @@ export function validateResource(schema: AnyZodSchema, source: Source = 'body') 
         const result = schema.safeParse(req[source]);
 
         if (result.success) {
-            // Replace the source with parsed (coerced/trimmed) data
-            (req as unknown as Record<string, unknown>)[source] = result.data as unknown;
+            // Replace the source with parsed (coerced/trimmed) data.
+            // req.query and req.params are getters in newer Node/Express, so we mutate the object.
+            const target = req[source] as Record<string, unknown>;
+            const parsed = result.data as Record<string, unknown>;
+
+            for (const key of Object.keys(target)) {
+                delete target[key];
+            }
+            Object.assign(target, parsed);
+
             next();
             return;
         }
