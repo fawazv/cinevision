@@ -38,6 +38,15 @@ apiClient.interceptors.response.use(
         // If the backend sent our structured ApiErrorResponse
         if (error.response?.data?.error) {
             const apiError = error.response.data.error;
+
+            // Auto-logout on invalid or expired token
+            if (error.response.status === 401) {
+                // Must dynamically import to avoid circular dependency
+                import('../store/auth.store').then(({ useAuthStore }) => {
+                    useAuthStore.getState().logout();
+                });
+            }
+
             // Throw a clean error object matching the backend's AppError shape
             return Promise.reject({
                 message: apiError.message,

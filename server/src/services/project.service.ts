@@ -24,6 +24,7 @@ function toPublicProject(doc: {
     title: string;
     description: string;
     genre: PublicProject['genre'];
+    status: PublicProject['status'];
     owner: PublicProject['owner'];
     sceneCount: number;
     createdAt: Date;
@@ -34,6 +35,7 @@ function toPublicProject(doc: {
         title: doc.title,
         description: doc.description,
         genre: doc.genre,
+        status: doc.status,
         owner: doc.owner,
         sceneCount: doc.sceneCount,
         createdAt: doc.createdAt,
@@ -76,6 +78,7 @@ export async function listProjects(
                 title: p.title,
                 description: p.description,
                 genre: p.genre,
+                status: p.status,
                 owner: p.owner,
                 sceneCount: p.sceneCount,
                 createdAt: p.createdAt,

@@ -21,18 +21,30 @@ export const PROJECT_GENRES = [
 
 export type ProjectGenre = (typeof PROJECT_GENRES)[number];
 
+export const PROJECT_STATUSES = [
+    'development',
+    'pre-production',
+    'production',
+    'post-production',
+    'completed',
+] as const;
+
+export type ProjectStatus = (typeof PROJECT_STATUSES)[number];
+
 // ─── Request DTOs ─────────────────────────────────────────────────────────────
 
 export interface CreateProjectBody {
     title: string;
     description?: string;
     genre?: ProjectGenre;
+    status?: ProjectStatus;
 }
 
 export interface UpdateProjectBody {
     title?: string;
     description?: string;
     genre?: ProjectGenre;
+    status?: ProjectStatus;
 }
 
 // ─── Query Params ─────────────────────────────────────────────────────────────
@@ -52,6 +64,7 @@ export interface PublicProject {
     title: string;
     description: string;
     genre: ProjectGenre;
+    status: ProjectStatus;
     owner: string | Types.ObjectId;
     sceneCount: number;
     createdAt: Date;

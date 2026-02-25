@@ -38,7 +38,7 @@ export const useAuthStore = create<AuthStore>()(
                     );
                     // The response interceptor returns response.data at runtime,
                     // but TypeScript types it as AxiosResponse — access .data defensively
-                    const payload = (response as unknown as { user: AuthUser; token: string });
+                    const payload = (response as unknown as { data: { user: AuthUser; token: string } }).data;
                     set({
                         user: payload.user,
                         token: payload.token,
@@ -62,7 +62,7 @@ export const useAuthStore = create<AuthStore>()(
                         '/auth/register',
                         { name, email, password }
                     );
-                    const payload = (response as unknown as { user: AuthUser; token: string });
+                    const payload = (response as unknown as { data: { user: AuthUser; token: string } }).data;
                     set({
                         user: payload.user,
                         token: payload.token,

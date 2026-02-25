@@ -6,7 +6,7 @@
  */
 
 import mongoose, { Schema, type Document, type Model, type Types } from 'mongoose';
-import { PROJECT_GENRES, type ProjectGenre } from '../types/project.types.js';
+import { PROJECT_GENRES, type ProjectGenre, type ProjectStatus } from '../types/project.types.js';
 
 // ─── Interfaces ───────────────────────────────────────────────────────────────
 
@@ -15,6 +15,7 @@ export interface ProjectDocument extends Document {
     title: string;
     description: string;
     genre: ProjectGenre;
+    status: ProjectStatus;
     /** Reference to the User who owns this project. */
     owner: Types.ObjectId;
     /**
@@ -49,6 +50,12 @@ const projectSchema = new Schema<ProjectDocument, ProjectModel>(
             type: String,
             enum: PROJECT_GENRES,
             default: 'other',
+        },
+        status: {
+            type: String,
+            // Assuming the status enums align with the frontend ProjectStatus type
+            enum: ['development', 'pre-production', 'production', 'post-production', 'completed'],
+            default: 'development',
         },
         owner: {
             type: Schema.Types.ObjectId,
