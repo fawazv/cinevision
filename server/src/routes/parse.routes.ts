@@ -8,36 +8,33 @@
 
 import { Router } from 'express';
 import { protect } from '../middleware/protect.middleware.js';
-import { handleValidationErrors } from '../middleware/validate.middleware.js';
-import { param } from 'express-validator';
+import { validateResource } from '../middleware/validate.middleware.js';
+import {
+    parseScriptIdParamSchema,
+    parseSceneIdParamSchema,
+} from '../schemas/script.schema.js';
 import { parseScript, listScenes, getScene } from '../controllers/parse.controller.js';
 
 const router = Router();
 
 router.use(protect);
 
-const validateMongoId = (field: string) =>
-    param(field).isMongoId().withMessage(`Invalid ${field}`);
-
 // Specific paths before parameterised ones
 router.get(
     '/scenes/:sceneId',
-    validateMongoId('sceneId'),
-    handleValidationErrors,
+    validateResource(parseSceneIdParamSchema, 'params'),
     getScene,
 );
 
 router.post(
     '/:scriptId',
-    validateMongoId('scriptId'),
-    handleValidationErrors,
+    validateResource(parseScriptIdParamSchema, 'params'),
     parseScript,
 );
 
 router.get(
     '/:scriptId/scenes',
-    validateMongoId('scriptId'),
-    handleValidationErrors,
+    validateResource(parseScriptIdParamSchema, 'params'),
     listScenes,
 );
 

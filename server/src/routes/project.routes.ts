@@ -10,13 +10,13 @@
 
 import { Router } from 'express';
 import { protect } from '../middleware/protect.middleware.js';
-import { handleValidationErrors } from '../middleware/validate.middleware.js';
+import { validateResource } from '../middleware/validate.middleware.js';
 import {
-    validateCreateProject,
-    validateUpdateProject,
-    validateProjectListQuery,
-    validateObjectId,
-} from '../middleware/project.validate.middleware.js';
+    createProjectSchema,
+    updateProjectSchema,
+    projectListQuerySchema,
+    mongoIdParamSchema,
+} from '../schemas/project.schema.js';
 import {
     listProjects,
     createProject,
@@ -27,18 +27,21 @@ import {
 
 const router = Router();
 
-// All project routes require authentication
 router.use(protect);
 
 router
     .route('/')
-    .get(validateProjectListQuery, handleValidationErrors, listProjects)
-    .post(validateCreateProject, handleValidationErrors, createProject);
+    .get(validateResource(projectListQuerySchema, 'query'), listProjects)
+    .post(validateResource(createProjectSchema), createProject);
 
 router
     .route('/:id')
-    .get(validateObjectId, handleValidationErrors, getProject)
-    .put(validateObjectId, validateUpdateProject, handleValidationErrors, updateProject)
-    .delete(validateObjectId, handleValidationErrors, deleteProject);
+    .get(validateResource(mongoIdParamSchema, 'params'), getProject)
+    .put(
+        validateResource(mongoIdParamSchema, 'params'),
+        validateResource(updateProjectSchema),
+        updateProject,
+    )
+    .delete(validateResource(mongoIdParamSchema, 'params'), deleteProject);
 
 export default router;

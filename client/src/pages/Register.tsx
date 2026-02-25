@@ -1,47 +1,39 @@
-import { useState, type FormEvent } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuthStore } from '../store/auth.store';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { User, Mail, Lock, AlertCircle, Loader2 } from 'lucide-react';
+import { useAuthStore } from '../store/auth.store';
+import { registerSchema, type RegisterInput } from '../schemas/forms.schema';
 import './AuthPage.css';
 
 export function Register() {
-    const [name, setName] = useState('');
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [confirmPassword, setConfirmPassword] = useState('');
-    const [localError, setLocalError] = useState<string | null>(null);
-    const { register, isLoading, error, clearError } = useAuthStore();
+    const { register: registerUser, isLoading } = useAuthStore();
     const navigate = useNavigate();
 
-    const handleSubmit = async (e: FormEvent) => {
-        e.preventDefault();
-        clearError();
-        setLocalError(null);
+    const {
+        register,
+        handleSubmit,
+        setError,
+        formState: { errors },
+    } = useForm<RegisterInput>({ resolver: zodResolver(registerSchema) });
 
-        if (password !== confirmPassword) {
-            setLocalError('Passwords do not match.');
-            return;
-        }
-        if (password.length < 8) {
-            setLocalError('Password must be at least 8 characters.');
-            return;
-        }
-
+    const onSubmit = async (data: RegisterInput) => {
         try {
-            await register(name, email, password);
+            await registerUser(data.name, data.email, data.password);
             navigate('/');
-        } catch {
-            // error displayed from store
+        } catch (err: unknown) {
+            const msg = err && typeof err === 'object' && 'message' in err
+                ? String((err as { message: unknown }).message)
+                : 'Registration failed. Please try again.';
+            setError('root', { message: msg });
         }
     };
-
-    const displayError = localError || error;
 
     return (
         <div className="auth-page">
             <div className="auth-bg-glow" />
-
-            <div className="auth-card glass-panel fade-in">
+            <div className="auth-card glass-panel">
+                {/* Brand */}
                 <div className="auth-brand">
                     <div className="auth-brand-icon">🎬</div>
                     <h1 className="text-gradient-accent">CineVision</h1>
@@ -50,14 +42,14 @@ export function Register() {
 
                 <h2 className="auth-heading">Create your account</h2>
 
-                {displayError && (
+                {errors.root && (
                     <div className="auth-error fade-in">
                         <AlertCircle size={16} />
-                        <span>{displayError}</span>
+                        <span>{errors.root.message}</span>
                     </div>
                 )}
 
-                <form className="auth-form" onSubmit={handleSubmit}>
+                <form className="auth-form" onSubmit={handleSubmit(onSubmit)} noValidate>
                     <div className="field-group">
                         <label htmlFor="reg-name" className="field-label">Full Name</label>
                         <div className="input-wrapper">
@@ -65,14 +57,13 @@ export function Register() {
                             <input
                                 id="reg-name"
                                 type="text"
-                                className="input-field"
+                                className={`input-field${errors.name ? ' input-error' : ''}`}
                                 placeholder="Alex Kubrick"
-                                value={name}
-                                onChange={(e) => setName(e.target.value)}
-                                required
                                 autoFocus
+                                {...register('name')}
                             />
                         </div>
+                        {errors.name && <span className="field-error">{errors.name.message}</span>}
                     </div>
 
                     <div className="field-group">
@@ -82,13 +73,12 @@ export function Register() {
                             <input
                                 id="reg-email"
                                 type="email"
-                                className="input-field"
+                                className={`input-field${errors.email ? ' input-error' : ''}`}
                                 placeholder="you@studio.com"
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                required
+                                {...register('email')}
                             />
                         </div>
+                        {errors.email && <span className="field-error">{errors.email.message}</span>}
                     </div>
 
                     <div className="field-group">
@@ -98,13 +88,12 @@ export function Register() {
                             <input
                                 id="reg-password"
                                 type="password"
-                                className="input-field"
+                                className={`input-field${errors.password ? ' input-error' : ''}`}
                                 placeholder="At least 8 characters"
-                                value={password}
-                                onChange={(e) => setPassword(e.target.value)}
-                                required
+                                {...register('password')}
                             />
                         </div>
+                        {errors.password && <span className="field-error">{errors.password.message}</span>}
                     </div>
 
                     <div className="field-group">
@@ -114,20 +103,15 @@ export function Register() {
                             <input
                                 id="reg-confirm"
                                 type="password"
-                                className="input-field"
+                                className={`input-field${errors.confirmPassword ? ' input-error' : ''}`}
                                 placeholder="••••••••"
-                                value={confirmPassword}
-                                onChange={(e) => setConfirmPassword(e.target.value)}
-                                required
+                                {...register('confirmPassword')}
                             />
                         </div>
+                        {errors.confirmPassword && <span className="field-error">{errors.confirmPassword.message}</span>}
                     </div>
 
-                    <button
-                        type="submit"
-                        className="btn-primary auth-submit"
-                        disabled={isLoading}
-                    >
+                    <button type="submit" className="btn-primary auth-submit" disabled={isLoading}>
                         {isLoading ? <><Loader2 size={16} className="spin-icon" /> Creating account...</> : 'Create Account'}
                     </button>
                 </form>

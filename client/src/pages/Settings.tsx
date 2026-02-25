@@ -1,7 +1,13 @@
-import { useState, useEffect } from 'react';
-import { User, Lock, Save, Loader2, CheckCircle } from 'lucide-react';
+import { useEffect } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { User, Lock, Save, Loader2 } from 'lucide-react';
 import { useAuthStore } from '../store/auth.store';
 import { apiClient } from '../api/client';
+import {
+    updateNameSchema, changePasswordSchema,
+    type UpdateNameInput, type ChangePasswordInput,
+} from '../schemas/forms.schema';
 import toast from 'react-hot-toast';
 import './Settings.css';
 
@@ -15,62 +21,45 @@ interface UserProfile {
 export function Settings() {
     const { user } = useAuthStore();
 
-    // Profile section state
-    const [name, setName] = useState(user?.name ?? '');
-    const [isSavingName, setIsSavingName] = useState(false);
+    // ── Name form ─────────────────────────────────────────────────────────────
+    const {
+        register: regName,
+        handleSubmit: submitName,
+        reset: resetName,
+        formState: { errors: nameErrors, isSubmitting: isSavingName, isDirty: isNameDirty },
+    } = useForm<UpdateNameInput>({
+        resolver: zodResolver(updateNameSchema),
+        defaultValues: { name: user?.name ?? '' },
+    });
 
-    // Password section state
-    const [currentPassword, setCurrentPassword] = useState('');
-    const [newPassword, setNewPassword] = useState('');
-    const [confirmPassword, setConfirmPassword] = useState('');
-    const [isSavingPassword, setIsSavingPassword] = useState(false);
+    // ── Password form ─────────────────────────────────────────────────────────
+    const {
+        register: regPwd,
+        handleSubmit: submitPwd,
+        reset: resetPwd,
+        formState: { errors: pwdErrors, isSubmitting: isSavingPwd },
+    } = useForm<ChangePasswordInput>({ resolver: zodResolver(changePasswordSchema) });
 
-    // Member since date
-    const [memberSince, setMemberSince] = useState<string | null>(null);
-
+    // ── Load profile (for member-since date) ──────────────────────────────────
     useEffect(() => {
-        apiClient.get<{ data: UserProfile }>('/users/me').then((res: unknown) => {
+        apiClient.get<unknown>('/users/me').then((res: unknown) => {
             const data = (res as { data: UserProfile }).data;
-            setMemberSince(new Date(data.createdAt).toLocaleDateString('en-US', {
-                year: 'numeric', month: 'long', day: 'numeric',
-            }));
-        }).catch(() => {
-            // Error is auto-toasted by the interceptor
-        });
-    }, []);
+            resetName({ name: data.name });
+        }).catch(() => { /* interceptor handles toast */ });
+    }, [resetName]);
 
-    const handleSaveName = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!name.trim()) return;
-        setIsSavingName(true);
-        try {
-            await apiClient.put('/users/me/name', { name });
-            toast.success('Display name updated!');
-        } finally {
-            setIsSavingName(false);
-        }
+    const onSaveName = async (data: UpdateNameInput) => {
+        await apiClient.put('/users/me/name', { name: data.name });
+        toast.success('Display name updated!');
     };
 
-    const handleChangePassword = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (newPassword !== confirmPassword) {
-            toast.error('New passwords do not match.');
-            return;
-        }
-        if (newPassword.length < 8) {
-            toast.error('New password must be at least 8 characters.');
-            return;
-        }
-        setIsSavingPassword(true);
-        try {
-            await apiClient.put('/users/me/password', { currentPassword, newPassword });
-            toast.success('Password changed successfully!');
-            setCurrentPassword('');
-            setNewPassword('');
-            setConfirmPassword('');
-        } finally {
-            setIsSavingPassword(false);
-        }
+    const onChangePassword = async (data: ChangePasswordInput) => {
+        await apiClient.put('/users/me/password', {
+            currentPassword: data.currentPassword,
+            newPassword: data.newPassword,
+        });
+        toast.success('Password changed successfully!');
+        resetPwd();
     };
 
     const initials = user?.name
@@ -91,105 +80,80 @@ export function Settings() {
                     <div>
                         <p className="profile-name-large">{user?.name}</p>
                         <p className="profile-email-large">{user?.email}</p>
-                        {memberSince && (
-                            <p className="profile-since">Member since {memberSince}</p>
-                        )}
                     </div>
                 </div>
             </div>
 
-            {/* Display Name Section */}
+            {/* Display Name */}
             <div className="settings-card glass-panel">
                 <div className="settings-section-header">
                     <User size={18} />
                     <h3>Display Name</h3>
                 </div>
-                <form onSubmit={handleSaveName} className="settings-form">
+                <form onSubmit={submitName(onSaveName)} className="settings-form">
                     <div className="form-group">
                         <label className="form-label">Full Name</label>
                         <input
                             type="text"
-                            className="form-input"
-                            value={name}
-                            onChange={(e) => setName(e.target.value)}
+                            className={`form-input${nameErrors.name ? ' input-error' : ''}`}
                             placeholder="Your full name"
-                            minLength={2}
-                            maxLength={50}
+                            {...regName('name')}
                         />
+                        {nameErrors.name && <span className="field-error">{nameErrors.name.message}</span>}
                     </div>
                     <button
                         type="submit"
                         className="btn-primary settings-btn"
-                        disabled={isSavingName || !name.trim() || name === user?.name}
+                        disabled={isSavingName || !isNameDirty}
                     >
-                        {isSavingName ? (
-                            <><Loader2 size={16} className="spin" /> Saving...</>
-                        ) : (
-                            <><Save size={16} /> Save Name</>
-                        )}
+                        {isSavingName ? <><Loader2 size={16} className="spin" /> Saving...</> : <><Save size={16} /> Save Name</>}
                     </button>
                 </form>
             </div>
 
-            {/* Change Password Section */}
+            {/* Change Password */}
             <div className="settings-card glass-panel">
                 <div className="settings-section-header">
                     <Lock size={18} />
                     <h3>Change Password</h3>
                 </div>
-                <form onSubmit={handleChangePassword} className="settings-form">
+                <form onSubmit={submitPwd(onChangePassword)} className="settings-form">
                     <div className="form-group">
                         <label className="form-label">Current Password</label>
                         <input
                             type="password"
-                            className="form-input"
-                            value={currentPassword}
-                            onChange={(e) => setCurrentPassword(e.target.value)}
+                            className={`form-input${pwdErrors.currentPassword ? ' input-error' : ''}`}
                             placeholder="Enter current password"
-                            required
+                            {...regPwd('currentPassword')}
                         />
+                        {pwdErrors.currentPassword && <span className="field-error">{pwdErrors.currentPassword.message}</span>}
                     </div>
                     <div className="form-group">
                         <label className="form-label">New Password</label>
                         <input
                             type="password"
-                            className="form-input"
-                            value={newPassword}
-                            onChange={(e) => setNewPassword(e.target.value)}
-                            placeholder="Min. 8 characters"
-                            required
-                            minLength={8}
+                            className={`form-input${pwdErrors.newPassword ? ' input-error' : ''}`}
+                            placeholder="Min. 8 characters, upper + lower + number"
+                            {...regPwd('newPassword')}
                         />
+                        {pwdErrors.newPassword && <span className="field-error">{pwdErrors.newPassword.message}</span>}
                     </div>
                     <div className="form-group">
                         <label className="form-label">Confirm New Password</label>
                         <input
                             type="password"
-                            className="form-input"
-                            value={confirmPassword}
-                            onChange={(e) => setConfirmPassword(e.target.value)}
+                            className={`form-input${pwdErrors.confirmPassword ? ' input-error' : ''}`}
                             placeholder="Repeat new password"
-                            required
+                            {...regPwd('confirmPassword')}
                         />
-                        {newPassword && confirmPassword && newPassword !== confirmPassword && (
-                            <span className="form-error">Passwords do not match.</span>
-                        )}
-                        {newPassword && confirmPassword && newPassword === confirmPassword && (
-                            <span className="form-success">
-                                <CheckCircle size={13} /> Passwords match!
-                            </span>
-                        )}
+                        {pwdErrors.confirmPassword && <span className="field-error">{pwdErrors.confirmPassword.message}</span>}
                     </div>
                     <button
                         type="submit"
                         className="btn-primary settings-btn"
-                        disabled={isSavingPassword || !currentPassword || !newPassword || !confirmPassword}
+                        disabled={isSavingPwd}
                     >
-                        {isSavingPassword ? (
-                            <><Loader2 size={16} className="spin" /> Changing...</>
-                        ) : (
-                            <><Lock size={16} /> Change Password</>
-                        )}
+                        {isSavingPwd ? <><Loader2 size={16} className="spin" /> Changing...</> : <><Lock size={16} /> Change Password</>}
                     </button>
                 </form>
             </div>

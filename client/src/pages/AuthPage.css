@@ -33,6 +33,19 @@
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
+  animation: authCardIn 0.45s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes authCardIn {
+  from {
+    opacity: 0;
+    transform: translateY(24px) scale(0.98);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
 }
 
 /* Brand Header */
@@ -112,32 +125,17 @@
 
 .input-icon {
   position: absolute;
-  left: 0.875rem;
+  left: 0.95rem;
+  top: 50%;
+  transform: translateY(-50%);
   color: hsl(var(--text-muted));
   pointer-events: none;
   z-index: 1;
 }
 
-.input-field {
-  width: 100%;
-  padding: 0.75rem 0.875rem 0.75rem 2.5rem;
-  background: hsl(var(--bg-elevated));
-  border: 1px solid hsl(var(--border-light));
-  border-radius: 10px;
-  color: hsl(var(--text-main));
-  font-family: var(--font-sans);
-  font-size: 0.95rem;
-  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
-  outline: none;
-}
-
-.input-field::placeholder {
-  color: hsl(var(--text-muted));
-}
-
-.input-field:focus {
-  border-color: hsl(var(--accent-primary));
-  box-shadow: 0 0 0 3px hsl(var(--accent-primary) / 0.2);
+/* Specific override to make room for absolute icon */
+.auth-form .input-field {
+  padding-left: 2.75rem;
 }
 
 .auth-submit {
@@ -158,7 +156,9 @@
 }
 
 @keyframes spin {
-  100% { transform: rotate(360deg); }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 /* Footer link */
@@ -179,4 +179,23 @@
 .auth-link:hover {
   opacity: 0.8;
   text-decoration: underline;
+}
+
+/* Inline field error text */
+.field-error {
+  display: block;
+  font-size: 0.78rem;
+  color: hsl(0 72% 65%);
+  margin-top: 0.25rem;
+  padding-left: 0.2rem;
+}
+
+/* Input with validation error */
+.input-error {
+  border-color: hsl(0 72% 55%) !important;
+  background: hsl(0 40% 7%) !important;
+}
+
+.input-error:focus {
+  box-shadow: 0 0 0 3px hsl(0 72% 55% / 0.2) !important;
 }

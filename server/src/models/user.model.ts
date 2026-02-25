@@ -77,9 +77,6 @@ const userSchema = new Schema<UserDocument, UserModel>(
     },
 );
 
-// ─── Indexes ──────────────────────────────────────────────────────────────────
-
-userSchema.index({ email: 1 });
 
 // ─── Pre-save Hook ────────────────────────────────────────────────────────────
 
