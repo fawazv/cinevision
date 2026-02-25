@@ -1,0 +1,66 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Ingress — The "Front Door" of the Cluster
+#
+# What is an Ingress?
+#   An Ingress is a set of routing rules that sit at the edge of the cluster
+#   and direct incoming internet traffic to the correct internal Service.
+#
+# K3s comes with Traefik as its built-in Ingress controller, which handles
+# all the complexity of TLS termination and HTTP routing for us.
+#
+# Routing rules:
+#   /api/*  → cinevision-server:5000  (Express API)
+#   /*      → cinevision-client:80    (Nginx/React SPA)
+#
+# TLS (HTTPS):
+#   We use cert-manager with Let's Encrypt to automatically get and renew
+#   a free SSL certificate. Install cert-manager on the cluster first
+#   (see the EC2 setup guide in Step 18.3).
+# ─────────────────────────────────────────────────────────────────────────────
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: cinevision-ingress
+  annotations:
+    # Use Traefik (K3s built-in ingress controller)
+    kubernetes.io/ingress.class: traefik
+
+    # ── HTTPS / TLS ──────────────────────────────────────────────────────────
+    # Tell cert-manager to issue a Let's Encrypt certificate for this domain.
+    # Uncomment these lines once cert-manager is installed on the cluster.
+    # cert-manager.io/cluster-issuer: "letsencrypt-prod"
+
+    # ── API path rewriting ───────────────────────────────────────────────────
+    # Strip the /api prefix before forwarding to the server container,
+    # since Express routes already start with /api internally.
+    # (Traefik handles this natively via the path)
+spec:
+  # ── TLS block (uncomment after cert-manager setup) ──────────────────────────
+  # tls:
+  #   - hosts:
+  #       - yourdomain.com            # !! REPLACE with your actual domain
+  #     secretName: cinevision-tls    # cert-manager will create this Secret
+
+  rules:
+    # !! REPLACE yourdomain.com with your actual domain, OR use the EC2 public IP
+    # for testing (e.g., host: "ec2-xx-xx-xx-xx.compute.amazonaws.com")
+    - host: yourdomain.com
+      http:
+        paths:
+          # ── API traffic → Express server ─────────────────────────────────
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: cinevision-server
+                port:
+                  number: 5000
+
+          # ── All other traffic → Nginx/React client ───────────────────────
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: cinevision-client
+                port:
+                  number: 80

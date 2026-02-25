@@ -1,0 +1,90 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Server Deployment + Service
+#
+# What is a Deployment?
+#   A Deployment tells Kubernetes: "I want 1 running copy of this container.
+#   If it crashes, restart it automatically."
+#
+# What is a Service?
+#   A Service gives the Deployment a stable hostname on the internal cluster
+#   network. Other pods/containers can reach this server using the hostname
+#   "cinevision-server" on port 5000.
+# ─────────────────────────────────────────────────────────────────────────────
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cinevision-server
+  labels:
+    app: cinevision-server
+spec:
+  replicas: 1           # Run 1 instance (EC2 Free Tier only has 1GB RAM)
+  selector:
+    matchLabels:
+      app: cinevision-server
+  template:
+    metadata:
+      labels:
+        app: cinevision-server
+    spec:
+      containers:
+        - name: server
+          # !! REPLACE with your actual Docker Hub / GHCR image path
+          # e.g. ghcr.io/yourusername/cinevision-server:latest
+          image: fawaz482/cinevision-server:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 5000
+
+          # Load secrets from the cinevision-secrets Secret object (see secrets.yaml)
+          envFrom:
+            - secretRef:
+                name: cinevision-secrets
+
+          # Override specific vars for the production environment
+          env:
+            - name: NODE_ENV
+              value: "production"
+            - name: PORT
+              value: "5000"
+
+          # Health check — Kubernetes kills and restarts the container if this fails
+          livenessProbe:
+            httpGet:
+              path: /api/health
+              port: 5000
+            initialDelaySeconds: 15
+            periodSeconds: 20
+            failureThreshold: 3
+
+          # Readiness check — Kubernetes only sends traffic here when this passes
+          readinessProbe:
+            httpGet:
+              path: /api/health
+              port: 5000
+            initialDelaySeconds: 10
+            periodSeconds: 10
+
+          # Resource limits — critical on a Free Tier instance (1GB total RAM)
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "384Mi"
+              cpu: "500m"
+
+---
+# ── Internal Service (ClusterIP) ──────────────────────────────────────────────
+# This makes "cinevision-server" reachable on port 5000 inside the cluster.
+# The Ingress and the client Nginx both use this hostname to reach the API.
+apiVersion: v1
+kind: Service
+metadata:
+  name: cinevision-server
+spec:
+  selector:
+    app: cinevision-server
+  ports:
+    - protocol: TCP
+      port: 5000
+      targetPort: 5000
