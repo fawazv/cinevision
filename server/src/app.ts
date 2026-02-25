@@ -10,6 +10,7 @@ import helmet from 'helmet';
 import cors from 'cors';
 import morgan from 'morgan';
 import { env } from './config/env.js';
+import { globalLimiter, authLimiter, parseJobLimiter } from './middleware/rate-limit.middleware.js';
 import healthRouter from './routes/health.routes.js';
 import authRouter from './routes/auth.routes.js';
 import projectsRouter from './routes/project.routes.js';
@@ -47,13 +48,18 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 // Use concise 'dev' format in development, structured 'combined' in production
 app.use(morgan(env.nodeEnv === 'development' ? 'dev' : 'combined'));
 
+// ─── Rate Limiting ────────────────────────────────────────────────────────────
+
+// Apply global ceiling to all /api/* routes
+app.use('/api', globalLimiter);
+
 // ─── Routes ──────────────────────────────────────────────────────────────────
 
 app.use('/api/health', healthRouter);
-app.use('/api/auth', authRouter);
+app.use('/api/auth', authLimiter, authRouter);           // Brute-force protected
 app.use('/api/projects', projectsRouter);
 app.use('/api/scripts', scriptsRouter);
-app.use('/api/parse', parseRouter);
+app.use('/api/parse', parseJobLimiter, parseRouter);     // AI parse throttled
 app.use('/api/users', usersRouter);
 
 // ─── Error Handling ───────────────────────────────────────────────────────────
