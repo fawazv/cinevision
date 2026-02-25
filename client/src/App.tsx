@@ -4,6 +4,7 @@ import { AuthGuard } from './components/auth/AuthGuard';
 import { Login } from './pages/Login';
 import { Register } from './pages/Register';
 import { Projects } from './pages/Projects';
+import { ProjectDetail } from './pages/ProjectDetail';
 import { ProjectDesign } from './pages/ProjectDesign';
 
 function DashboardPlaceholder() {
@@ -46,7 +47,8 @@ const router = createBrowserRouter([
         children: [
           { index: true, element: <DashboardPlaceholder /> },
           { path: 'projects', element: <Projects /> },
-          { path: 'projects/:id', element: <ProjectDesign /> },
+          { path: 'projects/:id', element: <ProjectDetail /> },
+          { path: 'projects/:id/scene/:sceneId', element: <ProjectDesign /> },
           { path: 'settings', element: <div className="fade-in"><h2>Settings</h2><p className="text-muted">UI Pending...</p></div> },
         ],
       },

@@ -1,0 +1,134 @@
+/* ScriptUploader component */
+
+.uploader-zone {
+    border: 2px dashed hsl(var(--border-light));
+    border-radius: 14px;
+    padding: 2.5rem 2rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.75rem;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+    background: hsl(var(--bg-elevated) / 0.5);
+    text-align: center;
+}
+
+.uploader-zone:hover,
+.uploader-zone.is-dragging {
+    border-color: hsl(var(--accent-primary));
+    background: hsl(var(--accent-primary) / 0.05);
+}
+
+.uploader-zone.is-uploading {
+    cursor: not-allowed;
+    border-style: solid;
+}
+
+.uploader-icon-wrap {
+    width: 60px;
+    height: 60px;
+    border-radius: 14px;
+    background: hsl(var(--accent-primary) / 0.1);
+    border: 1px solid hsl(var(--accent-primary) / 0.25);
+    color: hsl(var(--accent-primary));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s;
+}
+
+.uploader-zone:hover .uploader-icon-wrap,
+.uploader-zone.is-dragging .uploader-icon-wrap {
+    transform: scale(1.1);
+}
+
+.uploader-label {
+    font-size: 1rem;
+    font-weight: 600;
+    color: hsl(var(--text-main));
+    margin: 0;
+}
+
+.uploader-sub {
+    font-size: 0.8rem;
+    color: hsl(var(--text-muted));
+    margin: 0;
+}
+
+/* Progress */
+.uploader-progress-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.6rem;
+    width: 100%;
+    max-width: 300px;
+}
+
+.progress-bar-track {
+    width: 100%;
+    height: 6px;
+    border-radius: 99px;
+    background: hsl(var(--bg-surface));
+    overflow: hidden;
+}
+
+.progress-bar-fill {
+    height: 100%;
+    border-radius: 99px;
+    background: linear-gradient(90deg, hsl(var(--accent-primary)), hsl(var(--accent-secondary, var(--accent-primary))));
+    transition: width 0.2s ease;
+}
+
+/* Error */
+.uploader-error {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.8rem;
+    color: hsl(0 80% 70%);
+    background: hsl(0 80% 12%);
+    padding: 0.4rem 0.8rem;
+    border-radius: 6px;
+}
+
+/* Success */
+.uploader-success {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1.25rem 1.5rem;
+    border-radius: 12px;
+    background: hsl(140 50% 8%);
+    border: 1px solid hsl(140 50% 25%);
+}
+
+.success-icon {
+    color: hsl(140 60% 55%);
+    flex-shrink: 0;
+}
+
+.success-title {
+    font-weight: 600;
+    color: hsl(140 60% 75%);
+    margin: 0;
+    font-size: 0.95rem;
+}
+
+.success-file {
+    font-size: 0.8rem;
+    color: hsl(var(--text-muted));
+    margin: 0.1rem 0 0;
+}
+
+.spin {
+    animation: spin 1s linear infinite;
+    color: hsl(var(--accent-primary));
+}
+
+@keyframes spin {
+    100% {
+        transform: rotate(360deg);
+    }
+}
