@@ -1,4 +1,4 @@
-import { useState, Suspense } from 'react';
+import { Suspense } from 'react';
 import { Canvas } from '@react-three/fiber';
 import { EnvironmentBuilder } from './EnvironmentBuilder';
 import { LightingRig } from './LightingRig';
@@ -9,10 +9,10 @@ import type { ParsedSceneData } from '../../types/scene.types';
 
 interface SceneViewerProps {
     sceneData: ParsedSceneData;
+    activeCameraIndex?: number;
 }
 
-export function SceneViewer({ sceneData }: SceneViewerProps) {
-    const [activeCameraIndex] = useState(0);
+export function SceneViewer({ sceneData, activeCameraIndex = 0 }: SceneViewerProps) {
 
     return (
         <div style={{ width: '100%', height: '100%', position: 'relative', background: '#000' }}>

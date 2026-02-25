@@ -6,9 +6,18 @@ export async function exportStoryboardPDF(
     sceneDataList: ParsedSceneData[],
     projectName: string = 'Cinematic Pre-Vis'
 ): Promise<void> {
-    const canvas = document.getElementById(canvasId) as HTMLCanvasElement;
-    if (!canvas) {
+    const wrapper = document.getElementById(canvasId);
+    if (!wrapper) {
         throw new Error('Could not find the 3D canvas element for export.');
+    }
+
+    // React Three Fiber places the ID on a wrapper div, so we must query the actual canvas
+    const canvas = wrapper.tagName.toLowerCase() === 'canvas'
+        ? wrapper as HTMLCanvasElement
+        : wrapper.querySelector('canvas');
+
+    if (!canvas) {
+        throw new Error('Could not find inner canvas element.');
     }
 
     // 1. Capture the immediate WebGL drawing buffer
