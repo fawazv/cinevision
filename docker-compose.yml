@@ -1,13 +1,11 @@
-# docker-compose.yml — Local testing harness for CineVision
+# docker-compose.yml — Local testing harness for CineVision Backend
 #
 # Run with: docker compose up --build
 # Stop with: docker compose down
 #
 # What this does:
-#   - Builds both the server and client Docker images from their Dockerfiles
-#   - Wires them together on a private network called "cinevision-net"
-#   - Makes the client accessible at http://localhost:3000 on your browser
-#   - The client Nginx proxies /api/* to the server container automatically
+#   - Builds the backend server Docker image from its Dockerfile
+#   - Runs it locally on port 5000 so your frontend (Vite/Vercel) can connect
 
 services:
 
@@ -18,57 +16,24 @@ services:
       dockerfile: Dockerfile
     container_name: cinevision-server
 
+    # Map port 5000 inside to port 5000 outside for local frontend connection
+    ports:
+      - "5000:5000"
+
     # Load environment variables from the server's .env file.
-    # These are injected at runtime — NOT baked into the image.
     env_file:
       - ./server/.env
 
     # Override specific vars for the Docker context
     environment:
       - NODE_ENV=production
-      - CLIENT_URL=http://localhost:3000
-
-    # The server container is only reachable on the internal network —
-    # NOT exposed to the outside world. Nginx proxies to it.
-    networks:
-      - cinevision-net
+      - CLIENT_URL=http://localhost:5173 # Default Vite dev port
 
     # Auto-restart the server if it crashes
     restart: unless-stopped
 
-    # Health check — Docker will mark this container "healthy" once
-    # the /api/health endpoint responds. The client waits for this.
     healthcheck:
       test: [ "CMD", "wget", "-qO-", "http://localhost:5000/api/health" ]
       interval: 15s
       timeout: 5s
       retries: 3
-
-  # ── Frontend (Nginx serving static Vite build) ───────────────
-  client:
-    build:
-      context: ./client # Use client/Dockerfile
-      dockerfile: Dockerfile
-    container_name: cinevision-client
-
-    # Map port 80 inside the container to port 3000 on your laptop.
-    # So visiting http://localhost:3000 shows the app.
-    ports:
-      - "3000:80"
-
-    # Wait for the server to be healthy before starting the client
-    depends_on:
-      server:
-        condition: service_healthy
-
-    networks:
-      - cinevision-net
-
-    restart: unless-stopped
-
-# ── Private network ────────────────────────────────────────────
-# Both containers live on this network and can find each other
-# by service name (e.g., the client Nginx refers to "server" as a hostname).
-networks:
-  cinevision-net:
-    driver: bridge
