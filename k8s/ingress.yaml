@@ -28,10 +28,12 @@ spec:
   #     secretName: cinevision-tls
 
   rules:
-    # !! REPLACE with your actual API domain (e.g., api.yourdomain.com)
-    # or use the EC2 public IP for testing.
-    - host: api.yourdomain.com
-      http:
+    # We remove the 'host' key entirely.
+    # This creates a "catch-all" routing rule, meaning Traefik will accept
+    # traffic from ANY IP or domain name and route it to the backend server.
+    # This is necessary because right now, we are accessing the EC2 instance 
+    # directly via its IP address (e.g., http://13.235.45.67).
+    - http:
         paths:
           # Route all traffic to the backend server
           - path: /
