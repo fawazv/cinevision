@@ -82,5 +82,5 @@ jobs:
             fi
           done
           
-          echo "Waiting for rollout to finish (Zero Downtime)..."
+          echo "Waiting for rollout to finish (Zero Downtime)...
           kubectl --insecure-skip-tls-verify=true --request-timeout=5m rollout status deployment/cinevision-server --timeout=120s
