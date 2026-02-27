@@ -15,7 +15,7 @@ export const apiClient = axios.create({
     },
 });
 
-// Interceptor to attach JWT token to every request automatically
+// Interceptor to attach JWT token to  every request automatically
 apiClient.interceptors.request.use(
     (config) => {
         // We'll store the token in localStorage for simplicity on the client side
