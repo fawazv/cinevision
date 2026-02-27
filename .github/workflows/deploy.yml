@@ -56,11 +56,11 @@ jobs:
           IMAGE_TAG: ${{ secrets.DOCKERHUB_USERNAME }}/cinevision-server:${{ github.sha }}
         run: |
           # 1. Apply the latest Kubernetes manifests (Services, Ingress, etc.)
-          kubectl apply -f ./k8s/server-deployment.yaml
-          kubectl apply -f ./k8s/ingress.yaml
+          kubectl --insecure-skip-tls-verify=true apply -f ./k8s/server-deployment.yaml
+          kubectl --insecure-skip-tls-verify=true apply -f ./k8s/ingress.yaml
           
           # 2. Update the Deployment to use the exact new image tag we just built
-          kubectl set image deployment/cinevision-server cinevision-server=$IMAGE_TAG
+          kubectl --insecure-skip-tls-verify=true set image deployment/cinevision-server cinevision-server=$IMAGE_TAG
           
           # 3. Wait for the rollout to finish successfully (zero downtime deploy)
-          kubectl rollout status deployment/cinevision-server --timeout=90s
+          kubectl --insecure-skip-tls-verify=true rollout status deployment/cinevision-server --timeout=90s

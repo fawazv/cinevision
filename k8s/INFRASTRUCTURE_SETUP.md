@@ -62,11 +62,13 @@ A standard 1GB `t3.micro` instance will crash if Kubernetes uses too much memory
 Run this highly-optimized K3s installation command in your browser terminal:
 
 ```bash
+# !! IMPORTANT: Replace YOUR_EC2_PUBLIC_IP with your actual IP address before running
 curl -sfL https://get.k3s.io | sh -s - server \
   --disable servicelb \
   --disable metrics-server \
   --disable local-storage \
-  --kubelet-arg="eviction-hard=memory.available<50Mi,nodefs.available<10%"
+  --kubelet-arg="eviction-hard=memory.available<50Mi,nodefs.available<10%" \
+  --tls-san YOUR_EC2_PUBLIC_IP
 ```
 
 *This disables heavy unused components and prevents K3s from panic-killing the API pod if RAM spikes.*
