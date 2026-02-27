@@ -52,19 +52,20 @@ spec:
             httpGet:
               path: /api/health
               port: 5000
-            initialDelaySeconds: 15
+            initialDelaySeconds: 30
             periodSeconds: 20
             timeoutSeconds: 5
-            failureThreshold: 3
+            failureThreshold: 5
 
           # Readiness check — Kubernetes only sends traffic here when this passes
           readinessProbe:
             httpGet:
               path: /api/health
               port: 5000
-            initialDelaySeconds: 10
+            initialDelaySeconds: 30
             periodSeconds: 10
             timeoutSeconds: 5
+            failureThreshold: 5
 
           # Resource limits — critical on a Free Tier instance (1GB total RAM)
           resources:
