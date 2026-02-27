@@ -60,7 +60,8 @@ jobs:
           kubectl --insecure-skip-tls-verify=true apply -f ./k8s/ingress.yaml
           
           # 2. Update the Deployment to use the exact new image tag we just built
-          kubectl --insecure-skip-tls-verify=true set image deployment/cinevision-server cinevision-server=$IMAGE_TAG
+          # "sever" is the name of the container inside the deployment yaml.
+          kubectl --insecure-skip-tls-verify=true set image deployment/cinevision-server server=$IMAGE_TAG
           
           # 3. Wait for the rollout to finish successfully (zero downtime deploy)
           kubectl --insecure-skip-tls-verify=true rollout status deployment/cinevision-server --timeout=90s
