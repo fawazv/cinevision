@@ -1,8 +1,9 @@
 import axios from 'axios';
 import toast from 'react-hot-toast';
 
-// The Vite proxy (configured in vite.config.ts) will route /api requests to the backend server.
-const API_BASE_URL = '/api';
+// Respect VITE_API_URL from environment variables (for Vercel deployment),
+// fallback to '/api' for local development via Vite proxy.
+const API_BASE_URL = import.meta.env.VITE_API_URL || '/api';
 
 /**
  * Axios instance pre-configured for the CineVision API.
