@@ -16,13 +16,11 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: cinevision-ingress
-  annotations:
-    kubernetes.io/ingress.class: traefik
-
-    # ── HTTPS / TLS ──────────────────────────────────────────────────────────
-    # cert-manager.io/cluster-issuer: "letsencrypt-prod"
+  # annotations:
+  #   cert-manager.io/cluster-issuer: "letsencrypt-prod"
 
 spec:
+  ingressClassName: traefik
   # ── TLS block (uncomment after cert-manager setup) ──────────────────────────
   # tls:
   #   - hosts:
