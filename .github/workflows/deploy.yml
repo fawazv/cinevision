@@ -56,8 +56,8 @@ jobs:
           IMAGE_TAG: ${{ secrets.DOCKERHUB_USERNAME }}/cinevision-server:${{ github.sha }}
         run: |
           # 1. Apply the latest Kubernetes manifests (Services, Ingress, etc.)
-          kubectl --insecure-skip-tls-verify=true apply -f ./k8s/server-deployment.yaml
-          kubectl --insecure-skip-tls-verify=true apply -f ./k8s/ingress.yaml
+          kubectl --insecure-skip-tls-verify=true apply -f ./k8s/server-deployment.yaml --validate=false
+          kubectl --insecure-skip-tls-verify=true apply -f ./k8s/ingress.yaml --validate=false
           
           # 2. Update the Deployment to use the exact new image tag we just built
           # "sever" is the name of the container inside the deployment yaml.
