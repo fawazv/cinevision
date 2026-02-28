@@ -81,6 +81,7 @@ export function Register() {
                         {errors.email && <span className="field-error">{errors.email.message}</span>}
                     </div>
 
+
                     <div className="field-group">
                         <label htmlFor="reg-password" className="field-label">Password</label>
                         <div className="input-wrapper">
