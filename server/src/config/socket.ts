@@ -1,16 +1,18 @@
 import { Server as HttpServer } from 'http';
 import { Server, Socket } from 'socket.io';
-import { env } from './env.js';
 
 let io: Server;
 
 export function initSocketServer(httpServer: HttpServer): Server {
     io = new Server(httpServer, {
         cors: {
-            origin: env.clientUrl,
+            origin: '*',   // Accept proxied requests from Vercel
             methods: ['GET', 'POST', 'OPTIONS'],
-            credentials: true,
+            credentials: false,
         },
+        // Allow polling transport (Vercel proxy doesn't support WebSocket upgrades)
+        transports: ['polling', 'websocket'],
+        allowEIO3: true,
     });
 
     const projectNamespace = io.of('/project');

@@ -1,22 +1,29 @@
 import { io, Socket } from 'socket.io-client';
 
-// Use same fallback URL logic as apiClient
-const SOCKET_URL = import.meta.env.VITE_API_URL || '';
-
+/**
+ * Socket.IO service for real-time collaboration.
+ *
+ * Architecture:
+ *   Frontend (Vercel HTTPS) → Vercel Rewrite Proxy → EC2 Backend (HTTP)
+ *
+ * We force "polling" transport because Vercel can proxy normal HTTP
+ * requests but cannot upgrade them to raw WebSockets.
+ * The polling fallback works perfectly for cursor tracking & events.
+ */
 class SocketService {
     private socket: Socket | null = null;
 
     /**
-     * Establish a persistent connection to the /project namespace
+     * Establish a persistent connection to the /project namespace.
+     * Uses the current origin ('' = same host) so Vercel's rewrite
+     * proxy at /socket.io/* forwards traffic to EC2 seamlessly.
      */
     public connect(): Socket {
         if (!this.socket) {
-            // we use the empty string (current origin) or the loaded URL.
-            // io() takes the base URL and the /project namespace separately
-            const connectionUrl = `${SOCKET_URL}/project`;
-
-            this.socket = io(connectionUrl, {
-                withCredentials: true,
+            this.socket = io('/project', {
+                // Force HTTP long-polling — Vercel can't proxy WebSocket upgrades
+                transports: ['polling'],
+                withCredentials: false,
                 autoConnect: true,
                 reconnection: true,
                 reconnectionAttempts: 10,
@@ -25,6 +32,10 @@ class SocketService {
 
             this.socket.on('connect', () => {
                 console.log('🔗 [Socket.IO] Connected:', this.socket?.id);
+            });
+
+            this.socket.on('connect_error', (err) => {
+                console.warn('⚠️ [Socket.IO] Connection error:', err.message);
             });
 
             this.socket.on('disconnect', () => {
@@ -53,3 +64,4 @@ class SocketService {
 }
 
 export const socketService = new SocketService();
+
