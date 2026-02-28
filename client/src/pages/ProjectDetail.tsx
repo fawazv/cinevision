@@ -4,6 +4,7 @@ import { ArrowLeft, FileText, Cpu, Clapperboard, Play, RefreshCw, Loader2, Alert
 import { useProjectStore } from '../store/project.store';
 import { useScriptStore } from '../store/script.store';
 import { ScriptUploader } from '../components/upload/ScriptUploader';
+import { LiveCursors } from '../components/common/LiveCursors';
 import type { Script } from '../types/script.types';
 import './ProjectDetail.css';
 
@@ -138,6 +139,9 @@ export function ProjectDetail() {
 
     return (
         <div className="project-detail fade-in">
+            {/* Live Collaborative Cursors */}
+            {projectId && <LiveCursors projectId={projectId} />}
+
             {/* Back nav */}
             <Link to="/projects" className="back-link">
                 <ArrowLeft size={16} /> All Projects

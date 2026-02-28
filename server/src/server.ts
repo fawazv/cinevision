@@ -11,6 +11,7 @@
 import app from './app.js';
 import { env } from './config/env.js';
 import { connectDatabase, disconnectDatabase } from './config/database.js';
+import { initSocketServer } from './config/socket.js';
 
 // ─── Unhandled Errors (must be set up before any async work) ─────────────────
 
@@ -29,6 +30,9 @@ async function bootstrap(): Promise<void> {
     const server = app.listen(env.port, () => {
         console.log(`🚀 Server running on port ${env.port} in ${env.nodeEnv} mode`);
     });
+
+    // Initialize WebSockets
+    initSocketServer(server);
 
     // ─── Graceful Shutdown ──────────────────────────────────────────────────────
 

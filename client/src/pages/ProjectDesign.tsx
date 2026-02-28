@@ -7,6 +7,7 @@ import type { GestureState } from '../types/gesture.types';
 import { useGestureStore } from '../store/gesture.store';
 import { exportStoryboardPDF, exportShotListCSV } from '../services/export.service';
 import { apiClient } from '../api/client';
+import { LiveCursors } from '../components/common/LiveCursors';
 import { ArrowLeft, Loader2, AlertCircle, ChevronLeft, ChevronRight, Camera } from 'lucide-react';
 import './ProjectDesign.css';
 
@@ -130,6 +131,9 @@ export function ProjectDesign() {
 
     return (
         <div className="project-designer fade-in">
+            {/* Live Collaborative Cursors */}
+            {projectId && <LiveCursors projectId={projectId} />}
+
             {/* ── Header Bar ─────────────────────────────── */}
             <header className="designer-header">
                 <div className="designer-header-left">
