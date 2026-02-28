@@ -68,8 +68,8 @@ export async function parseScript(
     scriptId: string,
     ownerId: string,
 ): Promise<ParseResult> {
-    // 1. Find and validate script ownership
-    const script = await Script.findOne({ _id: scriptId, owner: ownerId }).exec();
+    // 1. Find and validate script existence (allow collaboration by ignoring owner check)
+    const script = await Script.findOne({ _id: scriptId }).exec();
     if (script === null) {
         throw new AppError('Script not found', 404, 'NOT_FOUND');
     }
@@ -161,9 +161,9 @@ export async function parseScript(
  */
 export async function listScenes(
     scriptId: string,
-    ownerId: string,
+    _ownerId: string, // unused
 ): Promise<PublicScene[]> {
-    const scenes = await Scene.find({ script: scriptId, owner: ownerId })
+    const scenes = await Scene.find({ script: scriptId })
         .sort({ sceneNumber: 1 })
         .exec();
 
@@ -175,9 +175,9 @@ export async function listScenes(
  */
 export async function getSceneById(
     sceneId: string,
-    ownerId: string,
+    _ownerId: string, // unused
 ): Promise<PublicScene> {
-    const scene = await Scene.findOne({ _id: sceneId, owner: ownerId }).exec();
+    const scene = await Scene.findOne({ _id: sceneId }).exec();
     if (scene === null) {
         throw new AppError('Scene not found', 404, 'NOT_FOUND');
     }
