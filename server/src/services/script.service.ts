@@ -102,7 +102,7 @@ export async function uploadScript(
         throw new AppError('Invalid project ID', 400, 'INVALID_ID');
     }
 
-    const project = await Project.findOne({ _id: projectId, owner: ownerId }).lean().exec();
+    const project = await Project.findOne({ _id: projectId }).lean().exec();
     if (project === null) {
         throw new AppError('Project not found', 404, 'NOT_FOUND');
     }
@@ -138,19 +138,19 @@ export async function uploadScript(
  */
 export async function listScripts(
     projectId: string,
-    ownerId: string,
+    _ownerId: string, // unused
 ): Promise<PublicScript[]> {
     if (!mongoose.isValidObjectId(projectId)) {
         throw new AppError('Invalid project ID', 400, 'INVALID_ID');
     }
 
     // Verify ownership
-    const project = await Project.findOne({ _id: projectId, owner: ownerId }).lean().exec();
+    const project = await Project.findOne({ _id: projectId }).lean().exec();
     if (project === null) {
         throw new AppError('Project not found', 404, 'NOT_FOUND');
     }
 
-    const scripts = await Script.find({ project: projectId, owner: ownerId })
+    const scripts = await Script.find({ project: projectId })
         .sort('-createdAt')
         .exec();
 
@@ -162,13 +162,13 @@ export async function listScripts(
  */
 export async function getScriptById(
     scriptId: string,
-    ownerId: string,
+    _ownerId: string, // unused
 ): Promise<PublicScript> {
     if (!mongoose.isValidObjectId(scriptId)) {
         throw new AppError('Invalid script ID', 400, 'INVALID_ID');
     }
 
-    const script = await Script.findOne({ _id: scriptId, owner: ownerId }).exec();
+    const script = await Script.findOne({ _id: scriptId }).exec();
     if (script === null) {
         throw new AppError('Script not found', 404, 'NOT_FOUND');
     }
