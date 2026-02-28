@@ -1,0 +1,27 @@
+# docker-compose.prod.yml
+# Production deployment configuration for AWS EC2 Free Tier
+
+services:
+  server:
+    # Use the pre-compiled image pushed by GitHub actions
+    image: fawaz482/cinevision-server:latest
+    container_name: cinevision-server
+
+    # Map port 80 (HTTP) directly to Express's 5000 inside the container.
+    # This completely bypasses the need for Nginx/Traefik reverse proxies!
+    ports:
+      - "80:5000"
+
+    # We read environment variables directly from the .env file on the remote EC2 server
+    env_file:
+      - .env
+
+    # Always restart the API if it crashes or if the EC2 instance reboots
+    restart: always
+
+    # Docker healthcheck
+    healthcheck:
+      test: [ "CMD", "wget", "-qO-", "http://localhost:5000/api/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5

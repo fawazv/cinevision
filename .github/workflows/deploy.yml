@@ -1,14 +1,14 @@
-name: Deploy Backend to K3s
+name: Deploy Backend to EC2 Docker
 
 # Trigger the workflow when code is pushed to the 'main' branch
-# and only when files in the 'server' or 'k8s' directories change.
+# and only when backend files change.
 on:
   push:
     branches:
       - main
     paths:
       - 'server/**'
-      - 'k8s/**'
+      - 'docker-compose.prod.yml'
       - '.github/workflows/deploy.yml'
 
 jobs:
@@ -34,53 +34,35 @@ jobs:
           context: ./server
           file: ./server/Dockerfile
           push: true
-          # Tags the image with both the commit SHA (for versioning) and 'latest'
+          # Tags the image with both the commit SHA and 'latest'
           tags: |
             ${{ secrets.DOCKERHUB_USERNAME }}/cinevision-server:${{ github.sha }}
             ${{ secrets.DOCKERHUB_USERNAME }}/cinevision-server:latest
 
-      - name: Set up kubectl
-        uses: azure/setup-kubectl@v3
+      - name: Upload Docker Compose File
+        uses: appleboy/scp-action@v0.1.7
         with:
-          version: 'latest'
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_KEY }}
+          source: "docker-compose.prod.yml"
+          target: "/home/ubuntu/cinevision/"
 
-      - name: Configure Kubeconfig
-        # We write the KUBE_CONFIG secret to a temporary file for kubectl to use
-        run: |
-          mkdir -p ~/.kube
-          echo "${{ secrets.KUBE_CONFIG }}" > ~/.kube/config
-          chmod 600 ~/.kube/config
-
-      - name: Deploy to K3s Cluster
-        env:
-          IMAGE_TAG: ${{ secrets.DOCKERHUB_USERNAME }}/cinevision-server:${{ github.sha }}
-        run: |
-          # The Free Tier 1GB EC2 instance often struggles to handle complex remote
-          # kubectl apply commands because it attempts to download the entire K8s OpenAPI schema,
-          # leading to TLS handshake timeouts.
-          
-          # Since the infrastructure/YAML rarely changes, we bypass 'kubectl apply' here.
-          # We only need to tell the cluster to use the new Docker image we just built.
-          # This is a very tiny, fast API request.
-          
-          echo "Updating deployment image to $IMAGE_TAG..."
-          
-          # We wrap this in a retry loop because AWS Free Tier instances occasionally stall for a few seconds.
-          for i in {1..3}; do
-            if kubectl --insecure-skip-tls-verify=true --request-timeout=60s set image deployment/cinevision-server server=$IMAGE_TAG; then
-              echo "✅ Successfully triggered zero-downtime deployment."
-              break
-            else
-              echo "⚠️ Failed to reach K3s cluster. Retrying in 15 seconds... ($i/3)"
-              sleep 15
-            fi
+      - name: Execute Deployment on EC2
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            # Navigate to the deployment folder
+            cd /home/ubuntu/cinevision
             
-            # If we reach the 3rd iteration and it still fails, exit with error
-            if [ $i -eq 3 ]; then
-              echo "❌ Error: Could not reach K3s to update the image. Your EC2 CPU might be completely exhausted."
-              exit 1
-            fi
-          done
-          
-          echo "Waiting for rollout to finish (Zero Downtime)..."
-          kubectl --insecure-skip-tls-verify=true --request-timeout=5m rollout status deployment/cinevision-server --timeout=120s
+            # Pull the completely freshly built image
+            sudo docker compose -f docker-compose.prod.yml pull
+            
+            # Gracefully recreate and restart ONLY the changed containers
+            sudo docker compose -f docker-compose.prod.yml up -d
+            
+            # Cleanup old Docker images to free up 8GB EC2 hard drive space
+            sudo docker image prune -a -f
