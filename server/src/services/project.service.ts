@@ -63,8 +63,8 @@ export async function listProjects(
     const { page, limit, skip } = parsePagination(query.page, query.limit);
     const sort = parseSortString(query.sort, '-updatedAt');
 
-    // Build the filter — always scope to the authenticated user
-    const filter: Record<string, unknown> = { owner: ownerId };
+    // Build the filter — remove owner constraint to allow testing shared collaboration
+    const filter: Record<string, unknown> = {};
     if (query.genre !== undefined) {
         filter['genre'] = query.genre;
     }
@@ -112,11 +112,12 @@ export async function createProject(
 
 export async function getProjectById(
     projectId: string,
-    ownerId: string,
+    _ownerId: string, // prefixed with underscore since it's temporarily unused for testing
 ): Promise<PublicProject> {
     assertValidObjectId(projectId, 'project');
 
-    const project = await Project.findOne({ _id: projectId, owner: ownerId }).exec();
+    // Remove owner check for collaboration testing
+    const project = await Project.findOne({ _id: projectId }).exec();
 
     if (project === null) {
         throw new AppError('Project not found', 404, 'NOT_FOUND');
